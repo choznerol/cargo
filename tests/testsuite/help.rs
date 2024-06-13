@@ -147,7 +147,8 @@ fn help_alias() {
     // The `empty-alias` returns an error.
     cargo_process("help empty-alias")
         .env("PATH", Path::new(""))
-        .with_stderr_contains("[..]The subcommand 'empty-alias' wasn't recognized[..]")
+        .with_stderr_contains("THIS RANDOM SENTENCE SHOULD FAIL THIS TEST BUT DIDN'T [..] The subcommand 'empty-alias' wasn't recognized [..]",
+        )
         .run_expect_error();
 
     // Because `simple-alias` aliases a subcommand with no arguments, help shows the manpage.
