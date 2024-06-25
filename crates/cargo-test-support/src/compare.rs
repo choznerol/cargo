@@ -200,6 +200,26 @@ fn add_common_redactions(subs: &mut snapbox::Redactions) {
         regex!(r"ns/iter \(\+/- (?<redacted>[0-9]+(\.[0-9]+)?)\)"),
     )
     .unwrap();
+
+    // Following 3 subs redact:
+    //   "1719325877.527949100s, 61549498ns after last build at 1719325877.466399602s"
+    //   "1719503592.218193216s, 1h 1s after last build at 1719499991.982681034s"
+    // into "[DIRTY_REASON_NEW_TIME], [DIRTY_REASON_DIFF] after last build at [DIRTY_REASON_OLD_TIME]"
+    subs.insert(
+        "[DIRTY_REASON_NEW_TIME]",
+        regex!(r"(?<redacted>[0-9]+(\.[0-9]+)?s), (\s?[0-9]+(\.[0-9]+)?(s|ns|h))+ after last build at ([0-9]+(\.[0-9]+)?s)"),
+       )
+       .unwrap();
+    subs.insert(
+        "[DIRTY_REASON_DIFF]",
+        regex!(r"\[\w+\], (?<redacted>(\s?[0-9]+(\.[0-9]+)?(s|ns|h))+) after last build at ([0-9]+(\.[0-9]+)?s)"),
+        )
+        .unwrap();
+    subs.insert(
+        "[DIRTY_REASON_OLD_TIME]",
+        regex!(r"\[\w+\], \[\w+\] after last build at (?<redacted>[0-9]+(\.[0-9]+)?s)"),
+    )
+    .unwrap();
 }
 
 static MIN_LITERAL_REDACTIONS: &[(&str, &str)] = &[
