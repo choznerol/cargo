@@ -1611,9 +1611,7 @@ fn reuse_panic_pm() {
 
     // bar is built once without panic (for proc-macro) and once with (for the
     // normal dependency).
-    p.cargo("build -v")
-        .with_stderr_data(
-            str![[r#"
+    p.cargo("build -v").with_stderr_data(str![[r#"
 [LOCKING] 3 packages to latest compatible versions
 [COMPILING] bar v0.0.1 ([ROOT]/foo/bar)
 [RUNNING] `rustc --crate-name bar [..] bar/src/lib.rs [..]--crate-type lib --emit=[..]link[..]
@@ -1624,10 +1622,7 @@ fn reuse_panic_pm() {
 [RUNNING] `rustc --crate-name foo [..]-C panic=abort[..]`
 [FINISHED] `dev` profile [unoptimized + debuginfo] target(s) in [ELAPSED]s
 
-"#]]
-            .unordered(),
-        )
-        .run();
+"#]]).run();
 }
 
 #[cargo_test]
