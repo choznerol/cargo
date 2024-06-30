@@ -291,7 +291,7 @@ fn changing_profiles_caches_targets() {
     p.cargo("test foo")
         .with_stderr_data(str![[r#"
 [FINISHED] `test` profile [unoptimized + debuginfo] target(s) in [ELAPSED]s
-[RUNNING] unittests src/lib.rs (target/debug/deps/foo-[HASH])
+[RUNNING] unittests src/lib.rs (target/debug/deps/foo-[HASH][EXE])
 
 "#]])
         .run();
@@ -411,7 +411,7 @@ ftest off
         .with_stderr_data(str![[r#"
 [COMPILING] a v0.0.1 ([ROOT]/foo/a)
 [FINISHED] `dev` profile [unoptimized + debuginfo] target(s) in [ELAPSED]s
-[RUNNING] `[ROOT]/foo/./target/debug/a`
+[RUNNING] `[ROOT]/foo/./target/debug/a[EXE]`
 
 "#]])
         .run();
@@ -428,7 +428,7 @@ ftest on
 [COMPILING] dep_crate v0.0.1 ([ROOT]/foo/dep_crate)
 [COMPILING] b v0.0.1 ([ROOT]/foo/b)
 [FINISHED] `dev` profile [unoptimized + debuginfo] target(s) in [ELAPSED]s
-[RUNNING] `[ROOT]/foo/./target/debug/b`
+[RUNNING] `[ROOT]/foo/./target/debug/b[EXE]`
 
 "#]])
         .run();
@@ -442,7 +442,7 @@ ftest on
         .with_stderr_data(str![[r#"
 [COMPILING] b v0.0.1 ([ROOT]/foo/b)
 [FINISHED] `dev` profile [unoptimized + debuginfo] target(s) in [ELAPSED]s
-[RUNNING] `[ROOT]/foo/./target/debug/b`
+[RUNNING] `[ROOT]/foo/./target/debug/b[EXE]`
 
 "#]])
         .run();
@@ -459,7 +459,7 @@ ftest off
         .with_stderr_data(str![[r#"
 [COMPILING] a v0.0.1 ([ROOT]/foo/a)
 [FINISHED] `dev` profile [unoptimized + debuginfo] target(s) in [ELAPSED]s
-[RUNNING] `[ROOT]/foo/./target/debug/a`
+[RUNNING] `[ROOT]/foo/./target/debug/a[EXE]`
 
 "#]])
         .run();
@@ -476,7 +476,7 @@ ftest on
         .with_stderr_data(str![[r#"
 [COMPILING] b v0.0.1 ([ROOT]/foo/b)
 [FINISHED] `dev` profile [unoptimized + debuginfo] target(s) in [ELAPSED]s
-[RUNNING] `[ROOT]/foo/./target/debug/b`
+[RUNNING] `[ROOT]/foo/./target/debug/b[EXE]`
 
 "#]])
         .run();
@@ -935,7 +935,7 @@ old desc
         .with_stderr_data(str![[r#"
 [COMPILING] foo v0.0.1 ([ROOT]/foo)
 [FINISHED] `dev` profile [unoptimized + debuginfo] target(s) in [ELAPSED]s
-[RUNNING] `target/debug/foo`
+[RUNNING] `target/debug/foo[EXE]`
 
 "#]])
         .run();
@@ -962,7 +962,7 @@ new desc
 [COMPILING] foo v0.0.1 ([ROOT]/foo)
 [RUNNING] `rustc [..]
 [FINISHED] `dev` profile [unoptimized + debuginfo] target(s) in [ELAPSED]s
-[RUNNING] `target/debug/foo`
+[RUNNING] `target/debug/foo[EXE]`
 
 "#]])
         .run();
