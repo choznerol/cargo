@@ -44,13 +44,15 @@ fn modifying_and_moving() {
     p.root().join("target").move_into_the_past();
 
     p.change_file("src/a.rs", "#[allow(unused)]fn main() {}");
-    p.cargo("build -v").with_stderr_data(str![[r#"
-[DIRTY] foo v0.0.1 ([ROOT]/foo): the file `src/a.rs` has changed ([DIRTY_REASON_NEW_TIME], [DIRTY_REASON_DIFF] after last build at [DIRTY_REASON_OLD_TIME])
+    p.cargo("build -v")
+        .with_stderr_data(str![[r#"
+[DIRTY] foo v0.0.1 ([ROOT]/foo): the file `src/a.rs` has changed ([TIME_DIFF_AFTER_LAST_BUILD])
 [COMPILING] foo v0.0.1 ([ROOT]/foo)
 [RUNNING] `rustc --crate-name foo [..]
 [FINISHED] `dev` profile [unoptimized + debuginfo] target(s) in [ELAPSED]s
 
-"#]]).run();
+"#]])
+        .run();
 
     fs::rename(&p.root().join("src/a.rs"), &p.root().join("src/b.rs")).unwrap();
     p.cargo("build")
@@ -95,7 +97,7 @@ fn modify_only_some_files() {
     // Make sure the binary is rebuilt, not the lib
     p.cargo("build -v")
         .with_stderr_data(str![[r#"
-[DIRTY] foo v0.0.1 ([ROOT]/foo): the file `src/b.rs` has changed ([DIRTY_REASON_NEW_TIME], [DIRTY_REASON_DIFF] after last build at [DIRTY_REASON_OLD_TIME])
+[DIRTY] foo v0.0.1 ([ROOT]/foo): the file `src/b.rs` has changed ([TIME_DIFF_AFTER_LAST_BUILD])
 [COMPILING] foo v0.0.1 ([ROOT]/foo)
 [RUNNING] `rustc --crate-name foo [..]
 [FINISHED] `dev` profile [unoptimized + debuginfo] target(s) in [ELAPSED]s
@@ -157,30 +159,34 @@ fn rebuild_sub_package_then_while_package() {
     }
     p.change_file("b/src/lib.rs", "pub fn b() {}");
 
-    p.cargo("build -pb -v").with_stderr_data(str![[r#"
-[DIRTY] b v0.0.1 ([ROOT]/foo/b): the file `b/src/lib.rs` has changed ([DIRTY_REASON_NEW_TIME], [DIRTY_REASON_DIFF] after last build at [DIRTY_REASON_OLD_TIME])
+    p.cargo("build -pb -v")
+        .with_stderr_data(str![[r#"
+[DIRTY] b v0.0.1 ([ROOT]/foo/b): the file `b/src/lib.rs` has changed ([TIME_DIFF_AFTER_LAST_BUILD])
 [COMPILING] b v0.0.1 ([ROOT]/foo/b)
 [RUNNING] `rustc --crate-name b [..]
 [FINISHED] `dev` profile [unoptimized + debuginfo] target(s) in [ELAPSED]s
 
-"#]]).run();
+"#]])
+        .run();
 
     p.change_file(
         "src/lib.rs",
         "extern crate a; extern crate b; pub fn toplevel() {}",
     );
 
-    p.cargo("build -v").with_stderr_data(str![[r#"
+    p.cargo("build -v")
+        .with_stderr_data(str![[r#"
 [FRESH] b v0.0.1 ([ROOT]/foo/b)
-[DIRTY] a v0.0.1 ([ROOT]/foo/a): the dependency b was rebuilt ([DIRTY_REASON_NEW_TIME], [DIRTY_REASON_DIFF] after last build at [DIRTY_REASON_OLD_TIME])
+[DIRTY] a v0.0.1 ([ROOT]/foo/a): the dependency b was rebuilt ([TIME_DIFF_AFTER_LAST_BUILD])
 [COMPILING] a v0.0.1 ([ROOT]/foo/a)
 [RUNNING] `rustc --crate-name a [..]
-[DIRTY] foo v0.0.1 ([ROOT]/foo): the dependency b was rebuilt ([DIRTY_REASON_NEW_TIME], [DIRTY_REASON_DIFF] after last build at [DIRTY_REASON_OLD_TIME])
+[DIRTY] foo v0.0.1 ([ROOT]/foo): the dependency b was rebuilt ([TIME_DIFF_AFTER_LAST_BUILD])
 [COMPILING] foo v0.0.1 ([ROOT]/foo)
 [RUNNING] `rustc --crate-name foo [..] src/lib.rs [..]
 [FINISHED] `dev` profile [unoptimized + debuginfo] target(s) in [ELAPSED]s
 
-"#]]).run();
+"#]])
+        .run();
 }
 
 #[cargo_test]
@@ -616,7 +622,7 @@ fn rebuild_tests_if_lib_changes() {
     p.cargo("test -v")
         .with_status(101)
         .with_stderr_data(str![[r#"
-[DIRTY] foo v0.0.1 ([ROOT]/foo): the dependency foo was rebuilt ([DIRTY_REASON_NEW_TIME], [DIRTY_REASON_DIFF] after last build at [DIRTY_REASON_OLD_TIME])
+[DIRTY] foo v0.0.1 ([ROOT]/foo): the dependency foo was rebuilt ([TIME_DIFF_AFTER_LAST_BUILD])
 [COMPILING] foo v0.0.1 ([ROOT]/foo)
 [RUNNING] `rustc --crate-name foo [..]
 [RUNNING] `rustc --crate-name foo [..]
@@ -1664,7 +1670,7 @@ fn bust_patched_dep() {
     }
 
     p.cargo("build -v").with_stderr_data(str![[r#"
-[DIRTY] registry1 v0.1.0 ([ROOT]/foo/reg1new): the file `reg1new/src/lib.rs` has changed ([DIRTY_REASON_NEW_TIME], [DIRTY_REASON_DIFF] after last build at [DIRTY_REASON_OLD_TIME])
+[DIRTY] registry1 v0.1.0 ([ROOT]/foo/reg1new): the file `reg1new/src/lib.rs` has changed ([TIME_DIFF_AFTER_LAST_BUILD])
 [COMPILING] registry1 v0.1.0 ([ROOT]/foo/reg1new)
 [RUNNING] `rustc --crate-name registry1 [..]
 [DIRTY] registry2 v0.1.0: the dependency registry1 was rebuilt
@@ -1787,7 +1793,7 @@ fn rebuild_on_mid_build_file_modification() {
 
     p.cargo("build -v").with_stderr_data(str![[r#"
 [FRESH] proc_macro_dep v0.1.0 ([ROOT]/foo/proc_macro_dep)
-[DIRTY] root v0.1.0 ([ROOT]/foo/root): the file `root/src/lib.rs` has changed ([DIRTY_REASON_NEW_TIME], [DIRTY_REASON_DIFF] after last build at [DIRTY_REASON_OLD_TIME])
+[DIRTY] root v0.1.0 ([ROOT]/foo/root): the file `root/src/lib.rs` has changed ([TIME_DIFF_AFTER_LAST_BUILD])
 [COMPILING] root v0.1.0 ([ROOT]/foo/root)
 [RUNNING] `rustc --crate-name root [..]
 [FINISHED] `dev` profile [unoptimized + debuginfo] target(s) in [ELAPSED]s
@@ -3128,7 +3134,7 @@ fn use_mtime_cache_in_cargo_home() {
         .env("CARGO_HOME", &cargo_home)
         .with_status(101)
         .with_stderr_data(str![[r#"
-[DIRTY] foo v0.5.0 ([ROOT]/cargo_home/foo): the file `src/lib.rs` has changed ([DIRTY_REASON_NEW_TIME], [DIRTY_REASON_DIFF] after last build at [DIRTY_REASON_OLD_TIME])
+[DIRTY] foo v0.5.0 ([ROOT]/cargo_home/foo): the file `src/lib.rs` has changed ([TIME_DIFF_AFTER_LAST_BUILD])
 [CHECKING] foo v0.5.0 ([ROOT]/cargo_home/foo)
 [RUNNING] `rustc --crate-name foo [..] src/lib.rs [..]
 ...
