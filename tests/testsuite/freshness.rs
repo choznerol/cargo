@@ -517,11 +517,12 @@ fn changing_bin_features_caches_targets() {
 
     #[allow(deprecated)]
     p.cargo("build")
-        .with_stderr(str![[r#"
-[COMPILING] foo v0.0.1 ([ROOT]/foo)
-[FINISHED] `dev` profile [unoptimized + debuginfo] target(s) in [ELAPSED]s
-
-"#]])
+        .with_stderr(
+            "\
+[COMPILING] foo v0.0.1 ([..])
+[FINISHED] `dev` profile [unoptimized + debuginfo] target(s) in [..]
+",
+        )
         .run();
     p.rename_run("foo", "off1")
         .with_stdout_data(str![[r#"
@@ -530,12 +531,14 @@ feature off
 "#]])
         .run();
 
+    #[allow(deprecated)]
     p.cargo("build --features foo")
-        .with_stderr_data(str![[r#"
-[COMPILING] foo v0.0.1 ([ROOT]/foo)
-[FINISHED] `dev` profile [unoptimized + debuginfo] target(s) in [ELAPSED]s
-
-"#]])
+        .with_stderr(
+            "\
+[COMPILING] foo v0.0.1 ([..])
+[FINISHED] `dev` profile [unoptimized + debuginfo] target(s) in [..]
+",
+        )
         .run();
     p.rename_run("foo", "on1")
         .with_stdout_data(str![[r#"
@@ -550,7 +553,8 @@ feature on
 
     // MSVC does not include hash in binary filename, so it gets recompiled.
     if cfg!(target_env = "msvc") {
-        e.with_stderr_data(str![[r#"
+        #[allow(deprecated)]
+        e.with_stderr(str![[r#"
 [DIRTY] foo v0.0.1 ([ROOT]/foo): the list of features changed
 [COMPILING] foo v0.0.1 ([ROOT]/foo)
 [RUNNING] `rustc --crate-name [..]
