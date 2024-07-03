@@ -515,8 +515,9 @@ fn changing_bin_features_caches_targets() {
         )
         .build();
 
+    #[allow(deprecated)]
     p.cargo("build")
-        .with_stderr_data(str![[r#"
+        .with_stderr(str![[r#"
 [COMPILING] foo v0.0.1 ([ROOT]/foo)
 [FINISHED] `dev` profile [unoptimized + debuginfo] target(s) in [ELAPSED]s
 
