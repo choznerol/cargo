@@ -633,8 +633,8 @@ fn rebuild_tests_if_lib_changes() {
 [RUNNING] `rustc --crate-name foo [..]
 error[E0425]: cannot find function `foo` in crate `foo`
 ...
-[WARNING] build failed, waiting for other jobs to finish...
-
+[ERROR] could not compile `foo` (test "foo") due to 1 previous error
+...
 "#]])
         .run();
 }
