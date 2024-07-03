@@ -181,6 +181,7 @@ jobs:
       - name: Configure extra test environment
         run: echo CARGO_CONTAINER_TESTS=1 >> $GITHUB_ENV
         if: matrix.os == 'ubuntu-latest'
+      - uses: Swatinem/rust-cache@v2
       - run: cargo test -p cargo --test testsuite freshness
     # - name: Clear intermediate test output
     #   run: ci/clean-test-output.sh
