@@ -488,7 +488,6 @@ ftest on
         .run();
 }
 
-#[allow(deprecated)]
 #[cargo_test]
 fn changing_bin_features_caches_targets() {
     let p = project()
@@ -517,24 +516,32 @@ fn changing_bin_features_caches_targets() {
         .build();
 
     p.cargo("build")
-        .with_stderr(
-            "\
-[COMPILING] foo v0.0.1 ([..])
-[FINISHED] `dev` profile [unoptimized + debuginfo] target(s) in [..]
-",
-        )
+        .with_stderr_data(str![[r#"
+[COMPILING] foo v0.0.1 ([ROOT]/foo)
+[FINISHED] `dev` profile [unoptimized + debuginfo] target(s) in [ELAPSED]s
+
+"#]])
         .run();
-    p.rename_run("foo", "off1").with_stdout("feature off").run();
+    p.rename_run("foo", "off1")
+        .with_stdout_data(str![[r#"
+feature off
+
+"#]])
+        .run();
 
     p.cargo("build --features foo")
-        .with_stderr(
-            "\
-[COMPILING] foo v0.0.1 ([..])
-[FINISHED] `dev` profile [unoptimized + debuginfo] target(s) in [..]
-",
-        )
+        .with_stderr_data(str![[r#"
+[COMPILING] foo v0.0.1 ([ROOT]/foo)
+[FINISHED] `dev` profile [unoptimized + debuginfo] target(s) in [ELAPSED]s
+
+"#]])
         .run();
-    p.rename_run("foo", "on1").with_stdout("feature on").run();
+    p.rename_run("foo", "on1")
+        .with_stdout_data(str![[r#"
+feature on
+
+"#]])
+        .run();
 
     /* Targets should be cached from the first build */
 
@@ -542,37 +549,53 @@ fn changing_bin_features_caches_targets() {
 
     // MSVC does not include hash in binary filename, so it gets recompiled.
     if cfg!(target_env = "msvc") {
-        e.with_stderr(
-            "\
-[DIRTY] foo v0.0.1 ([..]): the list of features changed
-[COMPILING] foo[..]
-[RUNNING] `rustc [..]
-[FINISHED] `dev`[..]",
-        );
+        e.with_stderr_data(str![[r#"
+[DIRTY] foo v0.0.1 ([ROOT]/foo): the list of features changed
+[COMPILING] foo v0.0.1 ([ROOT]/foo)
+[RUNNING] `rustc --crate-name [..]
+[FINISHED] `dev` profile [unoptimized + debuginfo] target(s) in [ELAPSED]s
+
+"#]])
+            .run();
     } else {
-        e.with_stderr("[FRESH] foo v0.0.1 ([..])\n[FINISHED] `dev`[..]");
+        e.with_stderr_data(str![[r#"
+[FRESH] foo v0.0.1 ([ROOT]/foo)
+[FINISHED] `dev` profile [unoptimized + debuginfo] target(s) in [ELAPSED]s
+
+"#]]);
     }
     e.run();
-    p.rename_run("foo", "off2").with_stdout("feature off").run();
+    p.rename_run("foo", "off2")
+        .with_stdout_data(str![[r#"
+feature off
+
+"#]])
+        .run();
 
     let mut e = p.cargo("build --features foo -v");
     if cfg!(target_env = "msvc") {
-        e.with_stderr(
-            "\
-[DIRTY] foo v0.0.1 ([..]): the list of features changed
-[COMPILING] foo[..]
+        e.with_stderr_data(str![[r#"
+[DIRTY] foo v0.0.1 ([ROOT]/foo): the list of features changed
+[COMPILING] foo v0.0.1 ([ROOT]/foo)
 [RUNNING] `rustc [..]
-[FINISHED] `dev`[..]",
-        );
+[FINISHED] `dev` profile [unoptimized + debuginfo] target(s) in [ELAPSED]s
+
+"#]])
+            .run();
     } else {
-        e.with_stderr(
-            "\
-[FRESH] foo v0.0.1 ([..])
-[FINISHED] `dev`[..]",
-        );
+        e.with_stderr_data(str![[r#"
+[FRESH] foo v0.0.1 ([ROOT]/foo)
+[FINISHED] `dev` profile [unoptimized + debuginfo] target(s) in [ELAPSED]s
+
+"#]]);
     }
     e.run();
-    p.rename_run("foo", "on2").with_stdout("feature on").run();
+    p.rename_run("foo", "on2")
+        .with_stdout_data(str![[r#"
+feature on
+
+"#]])
+        .run();
 }
 
 #[cargo_test]
